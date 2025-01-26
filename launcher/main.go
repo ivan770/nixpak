@@ -164,10 +164,32 @@ func main() {
 		}
 	}
 
+	var f *os.File
+	seccompFilterPath, useSeccompFilter := os.LookupEnv("SECCOMP_PATH")
+
+	if useSeccompFilter {
+		var err error
+		f, err = os.Open(seccompFilterPath)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	bwrapArgs := readJsonArgs(bwrapArgsJson)
+
 	if useDbusProxy {
 		bwrapArgs = append([]string{"--sync-fd", strconv.Itoa(int(r.Fd()))}, bwrapArgs...)
 	}
+
+	if useSeccompFilter {
+		fd := f.Fd()
+		bwrapArgs = append([]string{"--seccomp", strconv.Itoa(int(fd))}, bwrapArgs...)
+		_, _, err := syscall.Syscall(syscall.SYS_FCNTL, fd, syscall.F_SETFD, 0)
+		if err != syscall.Errno(0x0) {
+            panic(err)
+		}
+	}
+
 	bwrapArgs = append(bwrapArgs, "--")
 	bwrapArgs = append(bwrapArgs, appExe)
 	bwrapArgs = append(bwrapArgs, os.Args[1:]...)

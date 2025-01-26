@@ -6,7 +6,7 @@ let
     type = types.bool;
     description = "Whether to mount ${desc}.";
   };
-  
+
   pairOf = elemType: with types; let
     list = nonEmptyListOf elemType;
     checked = addCheck list (l: length l == 2);
@@ -71,6 +71,12 @@ in {
     apivfs = {
       proc = mkMountToggle "the /proc API VFS";
       dev = mkMountToggle "the /dev API VFS";
+    };
+
+    seccomp = mkOption {
+      description = "Seccomp filter to use";
+      type = types.nullOr types.path;
+      default = null;
     };
 
     env = mkOption {

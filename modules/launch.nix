@@ -2,7 +2,7 @@
 with lib;
 let
   # most of the things here should probably be incorporated into a module
-  
+
   # TODO: make a proper type for env vars or pathspecs
   coerceToEnv = val: let
     parsed = strings.match "^\\$([a-zA-Z0-9_]*)(/(.*))?$" val;
@@ -37,7 +37,7 @@ let
   bindDev = bind' "--dev-bind-try";
   setEnv = key: val: [ "--setenv" key val ];
   mountTmpfs = path: [ "--tmpfs" path ];
-  
+
   bindPaths = map bind config.bubblewrap.bind.rw;
   bindRoPaths = map bindRo config.bubblewrap.bind.ro;
   bindDevPaths = map bindDev config.bubblewrap.bind.dev;
@@ -49,13 +49,13 @@ let
   info = pkgs.closureInfo { inherit rootPaths; };
   launcher = pkgs.callPackage ../launcher {};
   dbusOutsidePath = concat (env "XDG_RUNTIME_DIR") (concat "/nixpak-bus-" instanceId);
-  
+
   bwrapArgs = flatten [
     # This is the equivalent of --unshare-all, see bwrap(1) for details.
     "--unshare-user-try"
     (optionals (!config.bubblewrap.shareIpc) "--unshare-ipc")
     "--unshare-pid"
-    "--unshare-net"      
+    "--unshare-net"
     "--unshare-uts"
     "--unshare-cgroup-try"
 
@@ -63,13 +63,13 @@ let
     bindRoPaths
     envVars
     tmpfs
-    
+
     (optionals config.bubblewrap.network "--share-net")
     (optionals config.bubblewrap.apivfs.dev ["--dev" "/dev"])
     (optionals config.bubblewrap.apivfs.proc ["--proc" "/proc"])
 
     bindDevPaths
-    
+
     (optionals config.dbus.enable [
       (bind [ dbusOutsidePath "$XDG_RUNTIME_DIR/nixpak-bus" ])
       "--setenv" "DBUS_SESSION_BUS_ADDRESS"
@@ -109,6 +109,7 @@ let
         "--set BWRAP_EXE ${config.bubblewrap.package}/bin/bwrap"
         "--set NIXPAK_APP_EXE ${app}${executablePath}"
         "--set BUBBLEWRAP_ARGS ${bwrapArgsJson}"
+        (optionals (config.bubblewrap.seccomp != null) "--set SECCOMP_PATH ${config.bubblewrap.seccomp}")
         (optionals config.dbus.enable "--set XDG_DBUS_PROXY_EXE ${dbusProxyWrapper}")
         (optionals config.dbus.enable "--set XDG_DBUS_PROXY_ARGS ${dbusProxyArgsJson}")
       ])}
@@ -178,6 +179,7 @@ in {
       readOnly = true;
       type = types.package;
     };
+
     env = mkOption {
       description = "The app with the wrapper script replacing the regular binary.";
       internal = true;
