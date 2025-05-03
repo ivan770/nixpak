@@ -109,9 +109,9 @@ let
         "--set BWRAP_EXE ${config.bubblewrap.package}/bin/bwrap"
         "--set NIXPAK_APP_EXE ${app}${executablePath}"
         "--set BUBBLEWRAP_ARGS ${bwrapArgsJson}"
-        (optionals (config.bubblewrap.seccomp != null) "--set SECCOMP_PATH ${config.bubblewrap.seccomp}")
         (optionals config.dbus.enable "--set XDG_DBUS_PROXY_EXE ${dbusProxyWrapper}")
         (optionals config.dbus.enable "--set XDG_DBUS_PROXY_ARGS ${dbusProxyArgsJson}")
+        (optionals (config.bubblewrap.seccomp != null) "--set SECCOMP_PATH ${config.bubblewrap.seccomp}")
       ])}
   '');
 
