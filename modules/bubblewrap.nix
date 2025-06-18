@@ -23,6 +23,12 @@ in {
     network = mkEnableOption "network access in the sandbox" // { default = true; };
     shareIpc = mkEnableOption "host IPC namespace in the sandbox";
 
+    hostname = mkOption {
+      description = "Hostname to set for the sandbox.";
+      type = types.nullOr types.str;
+      default = null;
+    };
+
     bind.rw = mkOption {
       description = "Read-write paths to bind-mount into the sandbox.";
       type = bindType;
@@ -77,6 +83,10 @@ in {
       description = "Seccomp filter to use";
       type = types.nullOr types.path;
       default = null;
+    };
+
+    shareEnv = mkEnableOption "environment variable passthrough" // {
+      default = true;
     };
 
     env = mkOption {

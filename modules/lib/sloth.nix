@@ -7,6 +7,10 @@ let
     "instanceId"
     "mkdir"
   ];
+
+  envOverrides = lib.filterAttrs
+    (_: v: v != null)
+    config.bubblewrap.env;
 in
 {
   _module.args.sloth = {
@@ -24,15 +28,26 @@ in
       type = "instanceId";
     };
 
-    env = key: {
+    env' = key: {
       inherit key;
       type = "env";
     };
-    envOr = key: or_: {
+
+    envOr' = key: or_: {
       inherit key;
       "or" = or_;
       type = "env";
     };
+
+    env = key:
+      if (lib.hasAttr key envOverrides)
+      then envOverrides.${key}
+      else sloth.env' key;
+
+    envOr = key: or_:
+      if (lib.hasAttr key envOverrides)
+      then envOverrides.${key}
+      else sloth.envOr' key or_;
 
     concat = let
       isConcat = x: x.type or "" == "concat";
@@ -72,40 +87,28 @@ in
     };
 
     homeDir = sloth.env "HOME";
+    homeDir' = sloth.env' "HOME";
 
     appDir = sloth.concat [
-      sloth.homeDir
+      sloth.homeDir'
       "/.var/app/${config.flatpak.appId}"
     ];
 
-    appCacheDir = sloth.concat' sloth.appDir "/cache";
-
     appDataDir = sloth.concat' sloth.appDir "/data";
+    appCacheDir = sloth.concat' sloth.appDir "/cache";
+    runtimeDir = sloth.env' "XDG_RUNTIME_DIR";
 
-    xdgCacheHome = sloth.envOr "XDG_CACHE_HOME" (sloth.concat' sloth.homeDir "/.cache");
-
-    xdgConfigHome = sloth.envOr "XDG_CONFIG_HOME" (sloth.concat' sloth.homeDir "/.config");
-
-    xdgDataHome = sloth.envOr "XDG_DATA_HOME" (sloth.concat' sloth.homeDir "/.local/share");
-
-    xdgStateHome = sloth.envOr "XDG_STATE_HOME" (sloth.concat' sloth.homeDir "/.local/state");
-
-    runtimeDir = sloth.env "XDG_RUNTIME_DIR";
-
-    xdgDesktopDir = sloth.envOr "XDG_DESKTOP_DIR" (sloth.concat' sloth.homeDir "/Desktop");
-
-    xdgDocumentsDir = sloth.envOr "XDG_DOCUMENTS_DIR" (sloth.concat' sloth.homeDir "/Documents");
-
-    xdgDownloadDir = sloth.envOr "XDG_DOWNLOAD_DIR" (sloth.concat' sloth.homeDir "/Downloads");
-
-    xdgMusicDir = sloth.envOr "XDG_MUSIC_DIR" (sloth.concat' sloth.homeDir "/Music");
-
-    xdgPicturesDir = sloth.envOr "XDG_PICTURES_DIR" (sloth.concat' sloth.homeDir "/Pictures");
-
-    xdgPublicShareDir = sloth.envOr "XDG_PUBLICSHARE_DIR" (sloth.concat' sloth.homeDir "/Public");
-
-    xdgTemplatesDir = sloth.envOr "XDG_TEMPLATES_DIR" (sloth.concat' sloth.homeDir "/Templates");
-
-    xdgVideosDir = sloth.envOr "XDG_VIDEOS_DIR" (sloth.concat' sloth.homeDir "/Videos");
+    xdgCacheHome = sloth.concat' sloth.homeDir "/.cache";
+    xdgConfigHome = sloth.concat' sloth.homeDir "/.config";
+    xdgDataHome = sloth.concat' sloth.homeDir "/.local/share";
+    xdgStateHome = sloth.concat' sloth.homeDir "/.local/state";
+    xdgDesktopDir = sloth.concat' sloth.homeDir "/Desktop";
+    xdgDocumentsDir = sloth.concat' sloth.homeDir "/Documents";
+    xdgDownloadDir = sloth.concat' sloth.homeDir "/Downloads";
+    xdgMusicDir = sloth.concat' sloth.homeDir "/Music";
+    xdgPicturesDir = sloth.concat' sloth.homeDir "/Pictures";
+    xdgPublicShareDir = sloth.concat' sloth.homeDir "/Public";
+    xdgTemplatesDir = sloth.concat' sloth.homeDir "/Templates";
+    xdgVideosDir = sloth.concat' sloth.homeDir "/Videos";
   };
 }

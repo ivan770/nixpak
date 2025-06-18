@@ -49,6 +49,7 @@ let
   info = pkgs.closureInfo { inherit rootPaths; };
   launcher = pkgs.callPackage ../launcher {};
   dbusOutsidePath = concat (env "XDG_RUNTIME_DIR") (concat "/nixpak-bus-" instanceId);
+  hostname = config.bubblewrap.hostname;
 
   bwrapArgs = flatten [
     # This is the equivalent of --unshare-all, see bwrap(1) for details.
@@ -58,12 +59,14 @@ let
     "--unshare-net"
     "--unshare-uts"
     "--unshare-cgroup-try"
+    (optionals (!config.bubblewrap.shareEnv) "--clearenv")
 
     bindPaths
     bindRoPaths
     envVars
     tmpfs
 
+    (optionals (hostname != null) ["--hostname" hostname])
     (optionals config.bubblewrap.network "--share-net")
     (optionals config.bubblewrap.apivfs.dev ["--dev" "/dev"])
     (optionals config.bubblewrap.apivfs.proc ["--proc" "/proc"])
