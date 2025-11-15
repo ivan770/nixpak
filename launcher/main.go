@@ -687,14 +687,14 @@ func run() error {
 		flatpakMetadata.Setup()
 	}
 
-	if conf.UseSeccomp {
-
-	}
-
 	if conf.UseDbusProxy {
 		dbus := StartDbusproxy(conf)
 		defer dbus.Close()
 		dbus.WaitUntilStartup()
+	}
+
+	if conf.UseSeccomp {
+		UseSeccomp(conf)
 	}
 
 	if conf.UseWaylandProxy {
@@ -711,10 +711,6 @@ func run() error {
 	if conf.UseFlatpakMetadata {
 		flatpakMetadata.WriteBwrapInfo(bwrapInfo.Raw)
 		defer flatpakMetadata.Cleanup()
-	}
-
-	if conf.UseSeccomp {
-		UseSeccomp(conf)
 	}
 
 	if conf.UsePasta {
