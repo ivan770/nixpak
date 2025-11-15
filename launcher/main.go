@@ -546,7 +546,7 @@ func StartPasta(conf Config, pid int) {
 	}
 }
 
-func UseSeccomp(conf Config) {
+func UseSeccomp(conf *Config) {
 	src, err := os.Open(conf.SeccompPath)
 
 	if err != nil {
@@ -694,7 +694,7 @@ func run() error {
 	}
 
 	if conf.UseSeccomp {
-		UseSeccomp(conf)
+		UseSeccomp(&conf)
 	}
 
 	if conf.UseWaylandProxy {
