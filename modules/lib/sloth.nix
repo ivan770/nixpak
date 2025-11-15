@@ -87,6 +87,7 @@ in
     };
 
     homeDir = sloth.env "HOME";
+
     homeDir' = sloth.env' "HOME";
 
     appDir = sloth.concat [
@@ -95,13 +96,27 @@ in
     ];
 
     appDataDir = sloth.concat' sloth.appDir "/data";
+
     appCacheDir = sloth.concat' sloth.appDir "/cache";
+
     runtimeDir = sloth.env' "XDG_RUNTIME_DIR";
 
     xdgCacheHome = sloth.concat' sloth.homeDir "/.cache";
+
     xdgConfigHome = sloth.concat' sloth.homeDir "/.config";
+
     xdgDataHome = sloth.concat' sloth.homeDir "/.local/share";
+
     xdgStateHome = sloth.concat' sloth.homeDir "/.local/state";
+
+    uid = {
+      type = "uid";
+    };
+
+    gid = {
+      type = "gid";
+    };
+
     xdgDesktopDir = sloth.concat' sloth.homeDir "/Desktop";
     xdgDocumentsDir = sloth.concat' sloth.homeDir "/Documents";
     xdgDownloadDir = sloth.concat' sloth.homeDir "/Downloads";
