@@ -555,9 +555,9 @@ func UseSeccomp(conf Config) {
 
 	fd := src.Fd()
 
-	conf.BwrapArgs = append([]string{"--seccomp", strconv.Itoa(int(fd))}, conf.bwrapArgs...)
+	conf.BwrapArgs = append([]string{"--seccomp", strconv.Itoa(int(fd))}, conf.BwrapArgs...)
 
-	_, _, err := syscall.Syscall(syscall.SYS_FCNTL, fd, syscall.F_SETFD, 0)
+	_, _, err = syscall.Syscall(syscall.SYS_FCNTL, fd, syscall.F_SETFD, 0)
 	if err != syscall.Errno(0x0) {
 		panic(err)
 	}
